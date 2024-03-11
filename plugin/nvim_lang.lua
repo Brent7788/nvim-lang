@@ -1,5 +1,11 @@
 vim.print("Nvim Lang was loaded")
 
+-- TODO: Remove. This is only here for testing.
+vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
+
+local main = require("main")
+vim.print(main)
+
 local _ = vim.fn.getcwd()
 
 local buf_info = vim.fn.getbufinfo()
@@ -34,6 +40,24 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 		end
 		vim.print("On WIN enter")
 		vim.print(arg)
+		local file = arg.file
+
+		main.start_processing(file);
+
+		local timer = vim.loop.new_timer();
+
+		timer:start(100, 100, vim.schedule_wrap(function()
+			local n = main.check_process()
+
+			if n and next(n.nvim_lang_lines) then
+				vim.print(n)
+				timer:stop();
+				return
+			end
+			vim.print(n)
+		end))
+
+		vim.print("End of WIN Enter")
 	end
 })
 
