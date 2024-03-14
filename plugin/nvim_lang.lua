@@ -183,6 +183,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 	end
 })
 
+-- TODO: Create popup for on current line and not only on cursor position
 local function popup()
 	local current_line = vim.api.nvim_get_current_line()
 	vim.print(current_line)
@@ -240,6 +241,7 @@ local function popup()
 	end
 end
 
+-- TODO: Remove this map and create a command for this.
 vim.keymap.set("n", "<leader>ll", popup,
 	{ desc = "Show current word typos ", noremap = true, silent = true }
 )
