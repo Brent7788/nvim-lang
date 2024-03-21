@@ -172,10 +172,6 @@ local function process(arg)
 
 		timeout = timeout - 100;
 
-		-- if nvim_lang_file and nvim_lang_file.file_path ~= file then
-		-- 	return
-		-- end
-
 		if nvim_lang_file and next(nvim_lang_file.nvim_lang_lines) then
 			apply_underline(nvim_lang_file, arg.buf, file)
 			timer:stop();
@@ -206,8 +202,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 	end
 })
 
--- TODO: Create popup for on current line and not only on cursor position
-local function spelling_suggestions_popup()
+local function on_win_cursor_nvim_lang_line(line_fn)
 	local current_line = vim.api.nvim_get_current_line()
 
 	if current_line == nil or current_line == '' then
@@ -237,6 +232,19 @@ local function spelling_suggestions_popup()
 			goto continue
 		end
 
+		line_fn(line)
+
+		if line then
+			break
+		end
+
+		::continue::
+	end
+end
+
+-- TODO: Create popup for on current line and not only on cursor position
+local function spelling_suggestions_popup()
+	on_win_cursor_nvim_lang_line(function(line)
 		local options = line.options
 		local prompt = line.data_type .. " on |" .. options.original .. "|"
 
@@ -254,45 +262,11 @@ local function spelling_suggestions_popup()
 			-- Calling save command as workaround
 			vim.api.nvim_command("w")
 		end)
-
-		if options then
-			break
-		end
-
-		::continue::
-	end
+	end)
 end
 
 local function add_current_word_position_to_dictionary()
-	local current_line = vim.api.nvim_get_current_line()
-
-	if current_line == nil or current_line == '' then
-		return
-	end
-
-	local current_buf_id = vim.api.nvim_get_current_buf()
-
-	local nvim_language_file = nil
-	for _, v in pairs(nvim_language_files) do
-		if v.buffer_id == current_buf_id then
-			nvim_language_file = v
-		end
-	end
-
-	if nvim_language_file == nil then
-		vim.notify("Nvim Language File does not exit for buffer " .. current_buf_id)
-		return
-	end
-
-	local win_cursor_postion = vim.api.nvim_win_get_cursor(0)
-	local line_number = win_cursor_postion[1]
-	local line_column_index = win_cursor_postion[2]
-
-	for _, line in ipairs(nvim_language_file.lines) do
-		if line.line_number ~= line_number or line_column_index < line.start_column or line_column_index > line.end_column then
-			goto continue
-		end
-
+	on_win_cursor_nvim_lang_line(function(line)
 		local options = line.options
 		local original = options.original
 
@@ -309,14 +283,7 @@ local function add_current_word_position_to_dictionary()
 			-- INFO: By save, will inisiate processing of current file
 			vim.api.nvim_command("w")
 		end))
-
-
-		if options then
-			break
-		end
-
-		::continue::
-	end
+	end)
 end
 
 local function select_word_to_remove()
