@@ -263,7 +263,96 @@ local function spelling_suggestions_popup()
 	end
 end
 
+local function add_current_word_position_to_dictionary()
+	local current_line = vim.api.nvim_get_current_line()
+
+	if current_line == nil or current_line == '' then
+		return
+	end
+
+	local current_buf_id = vim.api.nvim_get_current_buf()
+
+	local nvim_language_file = nil
+	for _, v in pairs(nvim_language_files) do
+		if v.buffer_id == current_buf_id then
+			nvim_language_file = v
+		end
+	end
+
+	if nvim_language_file == nil then
+		vim.notify("Nvim Language File does not exit for buffer " .. current_buf_id)
+		return
+	end
+
+	local win_cursor_postion = vim.api.nvim_win_get_cursor(0)
+	local line_number = win_cursor_postion[1]
+	local line_column_index = win_cursor_postion[2]
+
+	for _, line in ipairs(nvim_language_file.lines) do
+		if line.line_number ~= line_number or line_column_index < line.start_column or line_column_index > line.end_column then
+			goto continue
+		end
+
+		local options = line.options
+		local original = options.original
+
+		if original == nil or original == "" then
+			-- TODO: Find better message
+			vim.print("Cannot add empty word")
+		end
+
+		main.add_word(original)
+
+		local timer = vim.loop.new_timer();
+
+		timer:start(500, 0, vim.schedule_wrap(function()
+			-- INFO: By save, will inisiate processing of current file
+			vim.api.nvim_command("w")
+		end))
+
+
+		if options then
+			break
+		end
+
+		::continue::
+	end
+end
+
+local function select_word_to_remove()
+	local words = main.get_words()
+	vim.print("Remove word start")
+	vim.print(words)
+
+	vim.ui.select(words, {
+		prompt = "Select word to remove:",
+		telescope = require("telescope.themes").get_cursor(),
+	}, function(selected)
+		if selected == nil then
+			return
+		end
+
+		main.remove_word(selected)
+		local timer = vim.loop.new_timer();
+
+		timer:start(500, 0, vim.schedule_wrap(function()
+			-- INFO: By save, will inisiate processing of current file
+			vim.api.nvim_command("w")
+		end))
+	end)
+end
+
 -- TODO: Remove this map and create a command for this.
 vim.keymap.set("n", "<leader>ll", spelling_suggestions_popup,
 	{ desc = "Show current word typos ", noremap = true, silent = true }
+)
+
+-- TODO: Remove this map and create a command for this.
+vim.keymap.set("n", "<leader>la", add_current_word_position_to_dictionary,
+	{ desc = "Add current word to dictionary ", noremap = true, silent = true }
+)
+
+-- TODO: Remove this map and create a command for this.
+vim.keymap.set("n", "<leader>lr", select_word_to_remove,
+	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
 )
