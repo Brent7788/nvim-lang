@@ -276,13 +276,7 @@ local function add_current_word_position_to_dictionary()
 		end
 
 		main.add_word(original)
-
-		local timer = vim.loop.new_timer();
-
-		timer:start(500, 0, vim.schedule_wrap(function()
-			-- INFO: By save, will inisiate processing of current file
-			vim.api.nvim_command("w")
-		end))
+		vim.api.nvim_command("w")
 	end)
 end
 
@@ -300,12 +294,7 @@ local function select_word_to_remove()
 		end
 
 		main.remove_word(selected)
-		local timer = vim.loop.new_timer();
-
-		timer:start(500, 0, vim.schedule_wrap(function()
-			-- INFO: By save, will inisiate processing of current file
-			vim.api.nvim_command("w")
-		end))
+		vim.api.nvim_command("w")
 	end)
 end
 
