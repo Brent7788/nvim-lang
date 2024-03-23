@@ -96,19 +96,13 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 		end
 	end
 
-	vim.print(index)
 	if index ~= nil then
-		for _, x in ipairs(nvim_language_files[index].lines) do
-			for _, n in ipairs(nvim_lang_file.nvim_lang_lines) do
-				if x.line_number == n.line_number and x.start_column == n.start_column and x.end_column == n.end_column then
-					goto continue
-				end
-			end
+		local nvim_language_extmarks = vim.api.nvim_buf_get_extmarks(current_buffer_id, namespace_id, 0, -1, {});
 
-			vim.api.nvim_buf_del_extmark(current_buffer_id, namespace_id, x.extmar_id)
-
-			::continue::
+		for _, value in ipairs(nvim_language_extmarks) do
+			vim.api.nvim_buf_del_extmark(current_buffer_id, namespace_id, value[1])
 		end
+
 		table.remove(nvim_language_files, index)
 	end
 	-- INFO: End of remove
@@ -232,7 +226,7 @@ local function on_win_cursor_nvim_lang_line(line_fn)
 			goto continue
 		end
 
-		line_fn(line)
+		line_fn(line, current_line)
 
 		if line then
 			break
@@ -244,7 +238,7 @@ end
 
 -- TODO: Create popup for on current line and not only on cursor position
 local function spelling_suggestions_popup()
-	on_win_cursor_nvim_lang_line(function(line)
+	on_win_cursor_nvim_lang_line(function(line, current_line)
 		local options = line.options
 		local prompt = line.data_type .. " on |" .. options.original .. "|"
 
@@ -266,7 +260,7 @@ local function spelling_suggestions_popup()
 end
 
 local function add_current_word_position_to_dictionary()
-	on_win_cursor_nvim_lang_line(function(line)
+	on_win_cursor_nvim_lang_line(function(line, _)
 		local options = line.options
 		local original = options.original
 
