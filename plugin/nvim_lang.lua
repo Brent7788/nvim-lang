@@ -17,6 +17,7 @@ vim.cmd(
 
 local main = require("main")
 vim.print(main)
+main.languagetool_docker_setup()
 
 local _ = vim.fn.getcwd()
 
@@ -174,6 +175,7 @@ local function process(arg)
 	end))
 end
 
+-- BUG: This does not work with gitsign and fugitive
 vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 	group = vim.api.nvim_create_augroup('nvim_lang_on_window_enter', { clear = true }),
 	callback = function(arg)
