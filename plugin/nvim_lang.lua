@@ -1,4 +1,5 @@
 vim.print("Nvim Lang was loaded")
+local M = {}
 
 -- TODO: Remove. This is only here for testing.
 vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
@@ -175,6 +176,8 @@ local function process(arg)
 	end))
 end
 
+vim.print("Hello 2")
+
 -- BUG: This does not work with gitsign and fugitive
 vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 	group = vim.api.nvim_create_augroup('nvim_lang_on_window_enter', { clear = true }),
@@ -308,3 +311,13 @@ vim.keymap.set("n", "<leader>la", add_current_word_position_to_dictionary,
 vim.keymap.set("n", "<leader>lr", select_word_to_remove,
 	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
 )
+
+M.setup = function()
+	vim.notify("Call test is working")
+end
+
+vim.api.nvim_create_user_command('NvimLanguageTestCmd', function()
+	vim.notify('Hello from nvim lang command')
+end, {})
+
+return M
