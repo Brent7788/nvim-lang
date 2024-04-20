@@ -35,15 +35,7 @@ local function isNotValidNvimLangFile(arg)
 		return true
 	end
 
-	local file_end = end_of_path(arg.file);
-
-	-- TODO: Need to support more file type, not just only Rust.
-	--	 Need to make this more dynamic.
-	if file_end == nil or file_end == "" or file_end:find(".rs", 1, true) == nil then
-		return true
-	end
-
-	return false
+	return main.does_support_language(arg.file) ~= true
 end
 
 local function get_buffer_id_by_file_name(file_path)
@@ -63,7 +55,7 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 		current_buffer_id = get_buffer_id_by_file_name(nvim_lang_file.file_path)
 
 		if current_buffer_id == -1 then
-			vim.notify("Unable to apply underline highlight becuase the files does not match!")
+			vim.notify("Unable to apply underline highlight because the files does not match!")
 			vim.print('Nvim Language File ->' .. nvim_lang_file.file_path .. '<-')
 			vim.print('From your project ->' .. file .. '<-')
 			return
@@ -176,9 +168,7 @@ local function process(arg)
 	end))
 end
 
-vim.print("Hello 2")
-
--- BUG: This does not work with gitsign and fugitive
+-- BUG: This does not work with git sign and fugitive
 vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
 	group = vim.api.nvim_create_augroup('nvim_lang_on_window_enter', { clear = true }),
 	callback = function(arg)
