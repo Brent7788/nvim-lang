@@ -6,8 +6,9 @@ local M = {}
 -- vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
 
 -- local path = vim.fn.getcwd()
--- vim.opt.runtimepath:append(path)
+-- vim.opt.runtimepath:append("lua/")
 
+-- local n = vim.api.nvim_get_runtime_file
 -- vim.cmd(
 -- 	':highlight default NvimLanguageTypo guisp=#EB5757 gui=undercurl ctermfg=198 cterm=undercurl')
 --
