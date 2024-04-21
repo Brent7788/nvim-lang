@@ -1,14 +1,10 @@
 vim.print("Nvim Lang was loaded")
 local M = {}
 
--- TODO: Remove. This is only here for testing.
+-- TODO: This is only here for testing.
 --
 -- vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
 
--- local path = vim.fn.getcwd()
--- vim.opt.runtimepath:append("lua/")
-
--- local n = vim.api.nvim_get_runtime_file
 -- vim.cmd(
 -- 	':highlight default NvimLanguageTypo guisp=#EB5757 gui=undercurl ctermfg=198 cterm=undercurl')
 --
@@ -21,17 +17,13 @@ vim.cmd(
 vim.cmd(
 	':highlight default NvimLanguageMisc guisp=#8F7FFF gui=undercurl ctermfg=198 cterm=undercurl')
 
--- vim.loop.new_timer():start(3000, 0, vim.schedule_wrap(function()
--- 	local main = require("main")
--- 	vim.print(main)
--- end))
+local main = require 'main'
 
-local main = nil
--- vim.print(main)
--- main.languagetool_docker_setup()
-
--- local j = vim.fn.getcwd()
--- vim.print(j)
+if main then
+	main.languagetool_docker_setup()
+else
+	vim.notify('Something went wrong with Nvim Lang plugin. Please remove plugin!', 4)
+end
 
 local nvim_language_files = {}
 
@@ -72,25 +64,6 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 			return
 		end
 	end
-
-	-- pub struct NvimLanguageLine {
-	--     pub line_number: usize,
-	--     pub start_column: usize,
-	--     pub end_column: usize,
-	--     pub options: NvimOptions,
-	--     pub data_type: NvimLangLineType,
-	-- }
-
-	-- Typos,
-	-- Punctuation,
-	-- ConfusedWords,
-	-- Redundancy,
-	-- Casing,
-	-- Grammar,
-	-- Misc,
-	-- Semantics,
-	-- Typograph,
-	-- Other,
 
 	local index = nil
 	-- INFO: Remove existing nvim language file and highlight
@@ -243,7 +216,7 @@ local function on_win_cursor_nvim_lang_line(line_fn)
 end
 
 -- TODO: Create popup for on current line and not only on cursor position
-local function spelling_suggestions_popup()
+function M.spelling_suggestions_popup()
 	on_win_cursor_nvim_lang_line(function(line, current_line)
 		local options = line.options
 		local prompt = line.data_type .. " on |" .. options.original .. "|"
@@ -265,7 +238,7 @@ local function spelling_suggestions_popup()
 	end)
 end
 
-local function add_current_word_position_to_dictionary()
+function M.add_current_word_position_to_dictionary()
 	on_win_cursor_nvim_lang_line(function(line, _)
 		local options = line.options
 		local original = options.original
@@ -280,7 +253,7 @@ local function add_current_word_position_to_dictionary()
 	end)
 end
 
-local function select_word_to_remove()
+function M.select_word_to_remove()
 	local words = main.get_words()
 	vim.print("Remove word start")
 	vim.print(words)
@@ -299,29 +272,28 @@ local function select_word_to_remove()
 end
 
 -- TODO: Remove this map and create a command for this.
-vim.keymap.set("n", "<leader>ll", spelling_suggestions_popup,
-	{ desc = "Show current word typos ", noremap = true, silent = true }
-)
+--
+-- vim.keymap.set("n", "<leader>ll", spelling_suggestions_popup,
+-- 	{ desc = "Show current word typos ", noremap = true, silent = true }
+-- )
 
 -- TODO: Remove this map and create a command for this.
-vim.keymap.set("n", "<leader>la", add_current_word_position_to_dictionary,
-	{ desc = "Add current word to dictionary ", noremap = true, silent = true }
-)
+-- vim.keymap.set("n", "<leader>la", add_current_word_position_to_dictionary,
+-- 	{ desc = "Add current word to dictionary ", noremap = true, silent = true }
+-- )
 
 -- TODO: Remove this map and create a command for this.
-vim.keymap.set("n", "<leader>lr", select_word_to_remove,
-	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
-)
+-- vim.keymap.set("n", "<leader>lr", select_word_to_remove,
+-- 	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
+-- )
 
-M.setup = function()
-	vim.notify("Call test is working")
-end
 
-vim.api.nvim_create_user_command('NvimLanguageTestCmd', function()
-	vim.notify('Hello from nvim lang command')
-	main = require("main")
-	vim.print(main)
-	main.languagetool_docker_setup()
+vim.api.nvim_create_user_command('NvimLanguagePing', function()
+	if main == nil then
+		vim.notify("Nvim Language was not installed.", 4)
+	else
+		vim.notify("Nvim Language was installed.")
+	end
 end, {})
 
 return M
