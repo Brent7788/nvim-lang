@@ -298,7 +298,7 @@ vim.api.nvim_create_user_command('NvimLanguageAddCurrentWordToDictionary', funct
 end, {})
 
 vim.api.nvim_create_user_command('NvimLanguageSelectWordToRemove', function()
-	add_current_word_position_to_dictionary()
+	select_word_to_remove()
 end, {})
 
 vim.api.nvim_create_user_command('NvimLanguagePing', function()
