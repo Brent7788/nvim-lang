@@ -216,7 +216,7 @@ local function on_win_cursor_nvim_lang_line(line_fn)
 end
 
 -- TODO: Create popup for on current line and not only on cursor position
-function M.spelling_suggestions_popup()
+local function spelling_suggestions_popup()
 	on_win_cursor_nvim_lang_line(function(line, current_line)
 		local options = line.options
 		local prompt = line.data_type .. " on |" .. options.original .. "|"
@@ -238,7 +238,7 @@ function M.spelling_suggestions_popup()
 	end)
 end
 
-function M.add_current_word_position_to_dictionary()
+local function add_current_word_position_to_dictionary()
 	on_win_cursor_nvim_lang_line(function(line, _)
 		local options = line.options
 		local original = options.original
@@ -253,7 +253,7 @@ function M.add_current_word_position_to_dictionary()
 	end)
 end
 
-function M.select_word_to_remove()
+local function select_word_to_remove()
 	local words = main.get_words()
 	vim.print("Remove word start")
 	vim.print(words)
@@ -278,15 +278,28 @@ end
 -- )
 
 -- TODO: Remove this map and create a command for this.
+--
 -- vim.keymap.set("n", "<leader>la", add_current_word_position_to_dictionary,
 -- 	{ desc = "Add current word to dictionary ", noremap = true, silent = true }
 -- )
 
 -- TODO: Remove this map and create a command for this.
+--
 -- vim.keymap.set("n", "<leader>lr", select_word_to_remove,
 -- 	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
 -- )
 
+vim.api.nvim_create_user_command('NvimLanguageSpellingSuggestionPopup', function()
+	spelling_suggestions_popup()
+end, {})
+
+vim.api.nvim_create_user_command('NvimLanguageAddCurrentWordToDictionary', function()
+	add_current_word_position_to_dictionary()
+end, {})
+
+vim.api.nvim_create_user_command('NvimLanguageSelectWordToRemove', function()
+	add_current_word_position_to_dictionary()
+end, {})
 
 vim.api.nvim_create_user_command('NvimLanguagePing', function()
 	if main == nil then
