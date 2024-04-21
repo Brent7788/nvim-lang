@@ -2,7 +2,11 @@ vim.print("Nvim Lang was loaded")
 local M = {}
 
 -- TODO: Remove. This is only here for testing.
-vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
+--
+-- vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
+
+-- local path = vim.fn.getcwd()
+-- vim.opt.runtimepath:append(path)
 
 -- vim.cmd(
 -- 	':highlight default NvimLanguageTypo guisp=#EB5757 gui=undercurl ctermfg=198 cterm=undercurl')
@@ -16,11 +20,17 @@ vim.cmd(
 vim.cmd(
 	':highlight default NvimLanguageMisc guisp=#8F7FFF gui=undercurl ctermfg=198 cterm=undercurl')
 
-local main = require("main")
-vim.print(main)
-main.languagetool_docker_setup()
+-- vim.loop.new_timer():start(3000, 0, vim.schedule_wrap(function()
+-- 	local main = require("main")
+-- 	vim.print(main)
+-- end))
 
-local _ = vim.fn.getcwd()
+local main = nil
+-- vim.print(main)
+-- main.languagetool_docker_setup()
+
+-- local j = vim.fn.getcwd()
+-- vim.print(j)
 
 local nvim_language_files = {}
 
@@ -308,6 +318,9 @@ end
 
 vim.api.nvim_create_user_command('NvimLanguageTestCmd', function()
 	vim.notify('Hello from nvim lang command')
+	main = require("main")
+	vim.print(main)
+	main.languagetool_docker_setup()
 end, {})
 
 return M
