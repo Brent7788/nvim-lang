@@ -127,7 +127,7 @@ end
 
 local function process(arg)
 	local file = arg.file
-	local timeout = 30000;
+	local timeout = 120000;
 
 	main.start_processing(file);
 
@@ -136,7 +136,7 @@ local function process(arg)
 	timer:start(100, 100, vim.schedule_wrap(function()
 		local nvim_lang_file = main.check_process()
 
-		-- INFO: Stop after 30 sec
+		-- INFO: Stop after 120 sec
 		if timeout <= 0 then
 			vim.notify("Nvim Lang Timeout! On " .. file)
 			timer:stop();
