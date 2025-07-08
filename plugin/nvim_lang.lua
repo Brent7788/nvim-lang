@@ -1,34 +1,31 @@
 vim.print("Nvim Lang was loaded")
 local M = {}
 
--- TODO: This is only here for testing.
+-- NOTE: This is only here for testing.
 --
 -- vim.opt.runtimepath:append("~/Documents/projects/nvim-lang-core/target/release")
 
 -- vim.cmd(
 -- 	':highlight default NvimLanguageTypo guisp=#EB5757 gui=undercurl ctermfg=198 cterm=undercurl')
 --
-vim.cmd(
-	':highlight default NvimLanguageTypo guisp=#1bfa32 gui=undercurl ctermfg=198 cterm=undercurl')
+vim.cmd(":highlight default NvimLanguageTypo guisp=#1bfa32 gui=undercurl ctermfg=198 cterm=undercurl")
 
-vim.cmd(
-	':highlight default NvimLanguageGrammar guisp=#F2B24C gui=undercurl ctermfg=198 cterm=undercurl')
+vim.cmd(":highlight default NvimLanguageGrammar guisp=#F2B24C gui=undercurl ctermfg=198 cterm=undercurl")
 
-vim.cmd(
-	':highlight default NvimLanguageMisc guisp=#8F7FFF gui=undercurl ctermfg=198 cterm=undercurl')
+vim.cmd(":highlight default NvimLanguageMisc guisp=#8F7FFF gui=undercurl ctermfg=198 cterm=undercurl")
 
-local main = require 'main'
+local main = require("main")
 
 if main then
 	main.languagetool_docker_setup()
 else
-	vim.notify('Something went wrong with Nvim Lang plugin. Please remove plugin!', 4)
+	vim.notify("Something went wrong with Nvim Lang plugin. Please remove plugin!", 4)
 end
 
 local nvim_language_files = {}
 
 local function end_of_path(path)
-	local path_split = vim.split(path, '/', { trimempty = true })
+	local path_split = vim.split(path, "/", { trimempty = true })
 	local last_index_path = #path_split
 	return path_split[last_index_path]
 end
@@ -51,7 +48,7 @@ local function get_buffer_id_by_file_name(file_path)
 	return -1
 end
 
-local namespace_id = vim.api.nvim_create_namespace('NvimLanguageNamespace')
+local namespace_id = vim.api.nvim_create_namespace("NvimLanguageNamespace")
 
 local function apply_underline(nvim_lang_file, current_buffer_id, file)
 	if nvim_lang_file.file_path ~= file then
@@ -59,8 +56,8 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 
 		if current_buffer_id == -1 then
 			vim.notify("Unable to apply underline highlight because the files does not match!")
-			vim.print('Nvim Language File ->' .. nvim_lang_file.file_path .. '<-')
-			vim.print('From your project ->' .. file .. '<-')
+			vim.print("Nvim Language File ->" .. nvim_lang_file.file_path .. "<-")
+			vim.print("From your project ->" .. file .. "<-")
 			return
 		end
 	end
@@ -75,7 +72,7 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 	end
 
 	if index ~= nil then
-		local nvim_language_extmarks = vim.api.nvim_buf_get_extmarks(current_buffer_id, namespace_id, 0, -1, {});
+		local nvim_language_extmarks = vim.api.nvim_buf_get_extmarks(current_buffer_id, namespace_id, 0, -1, {})
 
 		for _, value in ipairs(nvim_language_extmarks) do
 			vim.api.nvim_buf_del_extmark(current_buffer_id, namespace_id, value[1])
@@ -88,7 +85,7 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 	table.insert(nvim_language_files, {
 		file = nvim_lang_file.file_path,
 		lines = nvim_lang_file.nvim_lang_lines,
-		buffer_id = current_buffer_id
+		buffer_id = current_buffer_id,
 	})
 
 	for _, nll in pairs(nvim_lang_file.nvim_lang_lines) do
@@ -98,87 +95,85 @@ local function apply_underline(nvim_lang_file, current_buffer_id, file)
 		local start_col = nll.start_column
 
 		if nll.data_type == "Typos" then
-			nll.extmar_id = vim.api.nvim_buf_set_extmark(
-				buffer_id, namespace_id, line_number - 1, start_col,
-				{
-					end_row = line_number - 1,
-					end_col = end_col,
-					hl_group = 'NvimLanguageTypo'
-				})
+			nll.extmar_id = vim.api.nvim_buf_set_extmark(buffer_id, namespace_id, line_number - 1, start_col, {
+				end_row = line_number - 1,
+				end_col = end_col,
+				hl_group = "NvimLanguageTypo",
+			})
 		elseif nll.data_type == "Redundancy" then
-			nll.extmar_id = vim.api.nvim_buf_set_extmark(
-				buffer_id, namespace_id, line_number - 1, start_col,
-				{
-					end_row = line_number - 1,
-					end_col = end_col,
-					hl_group = 'NvimLanguageMisc'
-				})
+			nll.extmar_id = vim.api.nvim_buf_set_extmark(buffer_id, namespace_id, line_number - 1, start_col, {
+				end_row = line_number - 1,
+				end_col = end_col,
+				hl_group = "NvimLanguageMisc",
+			})
 		else
-			nll.extmar_id = vim.api.nvim_buf_set_extmark(
-				buffer_id, namespace_id, line_number - 1, start_col,
-				{
-					end_row = line_number - 1,
-					end_col = end_col,
-					hl_group = 'NvimLanguageGrammar'
-				})
+			nll.extmar_id = vim.api.nvim_buf_set_extmark(buffer_id, namespace_id, line_number - 1, start_col, {
+				end_row = line_number - 1,
+				end_col = end_col,
+				hl_group = "NvimLanguageGrammar",
+			})
 		end
 	end
 end
 
 local function process(arg)
 	local file = arg.file
-	local timeout = 120000;
+	local timeout = 120000
 
-	main.start_processing(file);
+	main.start_processing(file)
 
-	local timer = vim.loop.new_timer();
+	local timer = vim.loop.new_timer()
 
-	timer:start(100, 100, vim.schedule_wrap(function()
-		local nvim_lang_file = main.check_process()
+	timer:start(
+		100,
+		100,
+		vim.schedule_wrap(function()
+			local nvim_lang_file = main.check_process()
 
-		-- INFO: Stop after 120 sec
-		if timeout <= 0 then
-			vim.notify("Nvim Lang Timeout! On " .. file)
-			timer:stop();
-		end
+			-- INFO: Stop after 120 sec
+			if timeout <= 0 then
+				vim.notify("Nvim Lang Timeout! On " .. file)
+				timer:stop()
+			end
 
-		timeout = timeout - 100;
+			timeout = timeout - 100
 
-		if nvim_lang_file and next(nvim_lang_file.nvim_lang_lines) then
-			apply_underline(nvim_lang_file, arg.buf, file)
-			timer:stop();
-			return
-		end
-	end))
+			if nvim_lang_file and next(nvim_lang_file.nvim_lang_lines) then
+				apply_underline(nvim_lang_file, arg.buf, file)
+				timer:stop()
+				return
+			end
+		end)
+	)
 end
 
 -- BUG: This does not work with git sign and fugitive
-vim.api.nvim_create_autocmd({ 'BufWinEnter' }, {
-	group = vim.api.nvim_create_augroup('nvim_lang_on_window_enter', { clear = true }),
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+	group = vim.api.nvim_create_augroup("nvim_lang_on_window_enter", { clear = true }),
 	callback = function(arg)
 		if isNotValidNvimLangFile(arg) then
 			return
 		end
 
 		process(arg)
-	end
+	end,
 })
 
-vim.api.nvim_create_autocmd('BufWritePost', {
-	group = vim.api.nvim_create_augroup('nvim_lang_on_save', { clear = true }),
+vim.api.nvim_create_autocmd("BufWritePost", {
+	group = vim.api.nvim_create_augroup("nvim_lang_on_save", { clear = true }),
 	callback = function(arg)
 		if isNotValidNvimLangFile(arg) then
 			return
 		end
 
 		process(arg)
-	end
+	end,
 })
 
 local function on_win_cursor_nvim_lang_line(line_fn)
 	local current_line = vim.api.nvim_get_current_line()
 
-	if current_line == nil or current_line == '' then
+	if current_line == nil or current_line == "" then
 		return
 	end
 
@@ -201,7 +196,11 @@ local function on_win_cursor_nvim_lang_line(line_fn)
 	local line_column_index = win_cursor_postion[2]
 
 	for _, line in ipairs(nvim_language_file.lines) do
-		if line.line_number ~= line_number or line_column_index < line.start_column or line_column_index > line.end_column then
+		if
+			line.line_number ~= line_number
+			or line_column_index < line.start_column
+			or line_column_index > line.end_column
+		then
 			goto continue
 		end
 
@@ -289,19 +288,19 @@ end
 -- 	{ desc = "Remove word from dictionary ", noremap = true, silent = true }
 -- )
 
-vim.api.nvim_create_user_command('NvimLanguageSpellingSuggestionPopup', function()
+vim.api.nvim_create_user_command("NvimLanguageSpellingSuggestionPopup", function()
 	spelling_suggestions_popup()
 end, {})
 
-vim.api.nvim_create_user_command('NvimLanguageAddCurrentWordToDictionary', function()
+vim.api.nvim_create_user_command("NvimLanguageAddCurrentWordToDictionary", function()
 	add_current_word_position_to_dictionary()
 end, {})
 
-vim.api.nvim_create_user_command('NvimLanguageSelectWordToRemove', function()
+vim.api.nvim_create_user_command("NvimLanguageSelectWordToRemove", function()
 	select_word_to_remove()
 end, {})
 
-vim.api.nvim_create_user_command('NvimLanguagePing', function()
+vim.api.nvim_create_user_command("NvimLanguagePing", function()
 	if main == nil then
 		vim.notify("Nvim Language was not installed.", 4)
 	else
